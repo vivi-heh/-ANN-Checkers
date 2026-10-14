@@ -30,30 +30,6 @@ class SoundEffectsManager {
   }
 
   /**
-   * Crisp piece selection tap
-   */
-  public playSelectPiece() {
-    const ctx = this.getAudioContext();
-    if (!ctx) return;
-
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(320, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(240, ctx.currentTime + 0.04);
-
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start();
-    osc.stop(ctx.currentTime + 0.045);
-  }
-
-  /**
    * Snappy wooden piece slide/tap
    */
   public playMove() {

@@ -42,6 +42,7 @@ import {
   GraduationCap,
   Settings,
   RefreshCw,
+  CheckCircle2,
   Crown,
   Volume2,
   VolumeX,
@@ -52,10 +53,6 @@ import {
   Target,
   Palette,
   Flame,
-  Code2,
-  CheckCircle2,
-  ChevronRight,
-  Hash,
 } from 'lucide-react';
 
 export default function App() {
@@ -75,7 +72,7 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Career Stats
+  // Fun Career Stats
   const [stats, setStats] = useState<{ wins: number; kings: number; jumps: number }>(() => {
     try {
       const raw = localStorage.getItem('neurocheckers_career_stats');
@@ -137,14 +134,14 @@ export default function App() {
 
   // Dynamic AI Mood & Expression based on board advantage
   const aiMood = useMemo(() => {
-    if (isAiThinking) return { emoji: '🤔', label: 'Analyzing Position...' };
+    if (isAiThinking) return { emoji: '🤔', label: 'Thinking...' };
     const diff = capturedStats.blackLostTotal - capturedStats.redLostTotal;
-    if (diff >= 3) return { emoji: '😰', label: 'Pressured by Red' };
-    if (diff <= -3) return { emoji: '😏', label: 'Positional Advantage' };
+    if (diff >= 3) return { emoji: '😰', label: 'Sweating AI' };
+    if (diff <= -3) return { emoji: '😏', label: 'Smug Bot' };
     if (capturedStats.redRemainingKings > 0 && capturedStats.blackRemainingKings === 0) {
-      return { emoji: '👀', label: 'Guarding Back Rank' };
+      return { emoji: '👀', label: 'Wary of King' };
     }
-    return { emoji: '🤖', label: 'Neural Master Ready' };
+    return { emoji: '🤖', label: 'Evaluating' };
   }, [isAiThinking, capturedStats]);
 
   // Current serialized state snapshot for saving
@@ -242,13 +239,14 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [turn, board, difficulty, gameOverInfo.isOpen, verifyGameOver]);
 
-  // Human player makes a move
+  // Human player makes a move with fun combo toasts
   const handleMakeHumanMove = (move: Move) => {
     if (turn !== 'red' || isAiThinking) return;
 
     const nextBoard = CheckersEngine.applyMove(board, move, 'red');
     triggerMoveSound(move);
 
+    // Fun combo notifications
     if (move.captures.length >= 2) {
       showToast(`🔥 DOUBLE JUMP! (+${move.captures.length} captured)`);
       saveStats({ ...stats, jumps: stats.jumps + move.captures.length });
@@ -381,267 +379,136 @@ export default function App() {
     } catch {}
   };
 
-  // Helper to render tactile captured checker pieces in a felt-lined groove
-  const renderCapturedRack = (count: number, isRedPiece: boolean) => {
-    return (
-      <div className="flex items-center gap-1.5 felt-groove px-2.5 py-1.5 rounded-xl border border-stone-800/80">
-        <div className="flex items-center -space-x-1 overflow-hidden min-h-[18px]">
-          {Array.from({ length: Math.min(count, 12) }).map((_, i) => (
-            <div
-              key={i}
-              className={`w-3.5 h-3.5 rounded-full border border-black/40 shadow-sm shrink-0 ${
-                isRedPiece
-                  ? 'bg-gradient-to-b from-rose-500 to-rose-900 border-rose-300/40'
-                  : 'bg-gradient-to-b from-stone-600 to-stone-950 border-stone-500/40'
-              }`}
-            >
-              <div className="w-[70%] h-[70%] mx-auto mt-[1px] rounded-full border border-white/20" />
-            </div>
-          ))}
-          {count === 0 && (
-            <span className="text-[10px] text-stone-500 italic font-serif">None</span>
-          )}
-        </div>
-        <span className="text-[10px] font-mono font-bold text-stone-300 ml-1">
-          {count}/12
-        </span>
-      </div>
-    );
-  };
-
   return (
-    <div
-      className={`min-h-[100dvh] max-h-[100dvh] ${theme.appBackground} ${theme.tableSurface} wood-grain-subtle text-stone-100 flex flex-col justify-between font-sans select-none antialiased overflow-hidden transition-colors duration-300`}
-    >
-      {/* 1. Game Header */}
-      <header className="shrink-0 h-13 sm:h-14 bg-gradient-to-b from-[#1a120c]/95 to-[#120c08]/95 backdrop-blur-md border-b border-[#3b2314] px-3 sm:px-6 flex items-center justify-between z-30 shadow-md">
-        {/* Brand & Crest */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl brass-corner border border-[#ffd700]/60 flex items-center justify-center shadow-md">
-            <Crown className="w-4 h-4 text-[#2b170c] fill-[#2b170c]" />
+    <div className={`min-h-[100dvh] max-h-[100dvh] ${theme.appBackground} text-stone-100 flex flex-col justify-between font-sans select-none antialiased overflow-hidden transition-colors duration-300`}>
+      
+      {/* 1. Mobile Game Top App Bar */}
+      <header className="shrink-0 h-13 sm:h-14 bg-stone-950/90 backdrop-blur-md border-b border-stone-800/80 px-3 sm:px-4 flex items-center justify-between z-30">
+        {/* Brand Lockup */}
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-amber-500 to-amber-800 border border-amber-400/50 flex items-center justify-center shadow-md">
+            <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-950 fill-stone-950" />
           </div>
           <div className="flex flex-col leading-tight">
-            <div className="flex items-center gap-2">
-              <h1 className="text-sm sm:text-base font-serif font-bold tracking-wide text-amber-100">
-                NeuroCheckers
-              </h1>
-              <span className="hidden sm:inline-block text-[10px] uppercase font-mono tracking-widest px-1.5 py-0.5 rounded bg-amber-950/80 border border-amber-800/60 text-amber-300 font-semibold">
-                ANN Draughts
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-amber-300/80 font-mono">
-              <span className="capitalize">{difficulty} Engine</span>
+            <h1 className="text-xs sm:text-sm font-bold tracking-tight text-stone-100">
+              NeuroCheckers
+            </h1>
+            <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-amber-400 font-mono">
+              <span className="capitalize">{difficulty}</span>
               <span className="text-stone-600">·</span>
-              <span className="text-amber-400 flex items-center gap-0.5 font-bold">
+              <span className="text-emerald-400 flex items-center gap-0.5">
                 <Flame className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />
-                {stats.wins} Wins
+                {stats.wins}W
               </span>
             </div>
           </div>
         </div>
 
-        {/* Top Header Controls */}
-        <div className="flex items-center gap-1 sm:gap-2">
+        {/* Right Top Bar Quick Action Icons */}
+        <div className="flex items-center gap-1 sm:gap-1.5">
           {/* Theme Palette Switcher */}
           <button
             onClick={() => setIsThemeOpen(true)}
-            title="Board Finish & Theme"
-            className="h-8 px-2.5 rounded-xl flex items-center gap-1 text-xs text-amber-200/90 hover:text-amber-100 hover:bg-[#311c10] border border-[#4d2d18] transition-colors cursor-pointer"
+            title="Change Board Theme"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-amber-400 hover:bg-stone-900 transition-colors cursor-pointer"
           >
-            <Palette className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden md:inline text-[11px] font-medium">Wood Finish</span>
-          </button>
-
-          {/* Python Code (.py) Viewer */}
-          <button
-            onClick={() => setIsPythonCodeOpen(true)}
-            title="Inspect Python Source Code (.py)"
-            className="h-8 px-2.5 rounded-xl flex items-center gap-1 text-xs text-stone-300 hover:text-amber-300 hover:bg-[#311c10] border border-[#4d2d18] transition-colors cursor-pointer"
-          >
-            <Code2 className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="hidden md:inline text-[11px] font-mono">Python .py</span>
+            <Palette className="w-4 h-4" />
           </button>
 
           {/* Opening Book */}
           <button
             onClick={() => setIsOpeningsOpen(true)}
             title="Opening Book"
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-stone-300 hover:text-amber-300 hover:bg-[#311c10] border border-[#4d2d18] transition-colors cursor-pointer"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-stone-300 hover:text-amber-400 hover:bg-stone-900 transition-colors cursor-pointer"
           >
-            <BookOpen className="w-3.5 h-3.5 text-amber-300" />
+            <BookOpen className="w-4 h-4" />
           </button>
 
           {/* Tactical Puzzles */}
           <button
             onClick={() => setIsPuzzlesOpen(true)}
             title="Tactical Puzzles"
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-stone-300 hover:text-amber-300 hover:bg-[#311c10] border border-[#4d2d18] transition-colors cursor-pointer"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-stone-300 hover:text-amber-400 hover:bg-stone-900 transition-colors cursor-pointer"
           >
-            <Target className="w-3.5 h-3.5 text-rose-400" />
+            <Target className="w-4 h-4" />
           </button>
 
           {/* Sound FX Mute */}
           <button
             onClick={handleToggleMute}
-            title={isMuted ? 'Unmute Sound' : 'Mute Sound'}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-stone-300 hover:text-amber-300 hover:bg-[#311c10] border border-[#4d2d18] transition-colors cursor-pointer"
+            title={isMuted ? 'Unmute' : 'Mute'}
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-stone-300 hover:text-amber-400 hover:bg-stone-900 transition-colors cursor-pointer"
           >
-            {isMuted ? (
-              <VolumeX className="w-3.5 h-3.5 text-stone-500" />
-            ) : (
-              <Volume2 className="w-3.5 h-3.5 text-amber-400" />
-            )}
+            {isMuted ? <VolumeX className="w-4 h-4 text-stone-500" /> : <Volume2 className="w-4 h-4" />}
           </button>
 
           {/* Settings */}
           <button
             onClick={() => setIsSettingsOpen(true)}
-            title="Settings"
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-stone-300 hover:text-amber-300 hover:bg-[#311c10] border border-[#4d2d18] transition-colors cursor-pointer"
+            title="Settings & Modes"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-stone-300 hover:text-amber-400 hover:bg-stone-900 transition-colors cursor-pointer"
           >
-            <Settings className="w-3.5 h-3.5" />
+            <Settings className="w-4 h-4" />
           </button>
         </div>
       </header>
 
-      {/* 2. Main Game Arena - Responsive: 3-column parlor layout on Desktop/Tablet, compact stacked view on Mobile */}
-      <main className="flex-1 flex flex-col md:flex-row items-center justify-center gap-3 lg:gap-6 px-3 py-1.5 sm:py-3 w-full max-w-6xl mx-auto overflow-hidden">
+      {/* 2. Main Game Viewport - Responsive across ALL Screen Heights & Widths */}
+      <main className="flex-1 flex flex-col items-center justify-evenly px-2 py-1 max-w-md w-full mx-auto overflow-hidden">
         
-        {/* Floating Toast Notification */}
+        {/* Floating Toast Alert */}
         {toastMessage && (
-          <div className="fixed top-14 z-50 flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 font-bold shadow-2xl text-xs border border-amber-300 animate-in fade-in slide-in-from-top-2">
+          <div className="fixed top-14 z-50 flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400 text-stone-950 font-bold shadow-2xl text-xs animate-in fade-in slide-in-from-top-2">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{toastMessage}</span>
           </div>
         )}
 
-        {/* LEFT FLANK (Desktop) / TOP CARD (Mobile): AI Opponent Dossier */}
-        <div className="w-[min(50vh,88vw,440px)] md:w-64 lg:w-72 shrink-0 flex flex-col gap-2">
-          {/* Opponent Card */}
-          <div
-            className={`p-2.5 sm:p-3.5 rounded-2xl border transition-all duration-200 flex flex-col gap-2 ${
-              turn === 'black'
-                ? 'bg-gradient-to-b from-[#2a1a10] to-[#1c120a] border-amber-500/80 shadow-[0_4px_16px_rgba(212,175,55,0.15)] ring-1 ring-amber-400/30'
-                : 'bg-stone-950/60 border-stone-800/80 opacity-90'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                {/* AI Avatar */}
-                <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center border text-base shadow-md ${
-                    turn === 'black'
-                      ? 'bg-amber-500/20 border-amber-400 text-stone-100 ring-2 ring-amber-400/40'
-                      : 'bg-stone-900 border-stone-700 text-stone-300'
-                  }`}
-                >
-                  <span>{aiMood.emoji}</span>
-                </div>
-
-                <div className="flex flex-col leading-tight">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs sm:text-sm font-serif font-bold text-stone-100">
-                      ANN Grandmaster
-                    </span>
-                    {turn === 'black' && (
-                      <span className="text-[9px] font-mono text-amber-400 font-bold animate-pulse px-1 rounded bg-amber-950/60 border border-amber-800/50">
-                        {isAiThinking ? 'THINKING' : 'ACTIVE'}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-[10px] text-amber-300/80 font-mono">
-                    Black Draughts · {difficulty.toUpperCase()}
-                  </span>
-                </div>
-              </div>
-
-              {/* Black Piece Badge */}
-              <div className="w-5 h-5 rounded-full bg-stone-900 border border-stone-600 shadow-sm flex items-center justify-center">
-                <div className="w-2.5 h-2.5 rounded-full bg-stone-700 border border-stone-500" />
-              </div>
+        {/* A. Opponent Profile Card (Top: ANN AI Agent) */}
+        <div
+          className={`w-[min(48vh,88vw,410px)] py-1.5 px-3 rounded-2xl border transition-all duration-200 flex items-center justify-between ${
+            turn === 'black'
+              ? 'bg-amber-950/30 border-amber-500/80 shadow-md ring-1 ring-amber-400/40'
+              : 'bg-stone-900/50 border-stone-800/80 opacity-80'
+          }`}
+        >
+          {/* Avatar & Title */}
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-8 h-8 rounded-xl flex items-center justify-center border text-sm ${
+                turn === 'black'
+                  ? 'bg-amber-400 border-amber-300 text-stone-950 font-bold animate-pulse'
+                  : 'bg-stone-800 border-stone-700 text-stone-300'
+              }`}
+            >
+              <span>{aiMood.emoji}</span>
             </div>
 
-            {/* Captured Red Pieces Tray (Pieces lost by Human) */}
-            <div className="flex items-center justify-between text-[11px] pt-1 border-t border-stone-800/60">
-              <span className="text-[10px] font-medium text-stone-400">Captured Red:</span>
-              {renderCapturedRack(capturedStats.redLostTotal, true)}
+            <div className="flex flex-col leading-tight">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-stone-100">ANN AI Agent</span>
+                <span className="text-[9px] font-mono text-amber-400/90 font-medium">
+                  {aiMood.label}
+                </span>
+              </div>
+              <span className="text-[9px] text-stone-400 font-mono">
+                {difficulty.toUpperCase()} · Black Checkers
+              </span>
             </div>
           </div>
 
-          {/* Desktop Only: Move History Log */}
-          <div className="hidden md:flex flex-col gap-1.5 p-3 rounded-2xl bg-stone-950/60 border border-stone-800/80 h-36 lg:h-44">
-            <div className="flex items-center justify-between pb-1 border-b border-stone-800 text-[10px] font-mono text-stone-400">
-              <span className="font-bold text-amber-300/90 uppercase tracking-wider">Tournament Notation</span>
-              <span>{history.length} Moves</span>
-            </div>
-            <div className="flex-1 overflow-y-auto space-y-1 text-[11px] font-mono text-stone-300 pr-1">
-              {history.length === 0 ? (
-                <div className="text-stone-500 italic text-[10px] pt-4 text-center">
-                  Match starting. Red moves first.
-                </div>
-              ) : (
-                history.map((rec, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between py-0.5 px-1.5 rounded hover:bg-stone-900/60"
-                  >
-                    <span className="text-stone-500 w-6">{i + 1}.</span>
-                    <span
-                      className={`font-semibold ${
-                        rec.player === 'red' ? 'text-rose-400' : 'text-stone-300'
-                      }`}
-                    >
-                      {rec.player === 'red' ? 'Red' : 'AI'}
-                    </span>
-                    <span className="text-amber-200/90">{rec.notation}</span>
-                    <span className="text-[9px] text-stone-500">
-                      {rec.isCapture ? '⚔️' : rec.isKinging ? '👑' : ''}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
+          {/* Captured Pieces Meter */}
+          <div className="flex items-center gap-1 bg-stone-950/70 px-2 py-0.5 rounded-lg border border-stone-800 text-[10px]">
+            <div className="w-2 h-2 rounded-full bg-rose-500" />
+            <span className="font-mono font-bold text-rose-300">
+              {capturedStats.redLostTotal}
+            </span>
+            <span className="text-[9px] text-stone-500">lost</span>
           </div>
         </div>
 
-        {/* CENTER STAGE: The Checkers Board & Turn Status Strip */}
-        <div className="flex flex-col items-center justify-center gap-1.5 sm:gap-2">
-          
-          {/* Real-time Game Turn & Status Banner */}
-          <div className="w-[min(50vh,88vw,440px)] md:w-[min(58vh,520px)] px-3 py-1 sm:py-1.5 rounded-xl bg-gradient-to-r from-[#21150e]/90 via-[#2e1d13]/90 to-[#21150e]/90 border border-[#54361f] shadow-md flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-2.5 h-2.5 rounded-full ${
-                  turn === 'red'
-                    ? 'bg-rose-500 animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.8)]'
-                    : 'bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.8)]'
-                }`}
-              />
-              <span className="font-serif font-bold text-amber-100">
-                {turn === 'red'
-                  ? 'Your Turn — Move Red Draught'
-                  : isAiThinking
-                  ? 'AI Agent is evaluating 48 neural features...'
-                  : 'AI Turn completed'}
-              </span>
-            </div>
-
-            {/* Quick Toggle Square Numbers */}
-            <button
-              onClick={() => setShowSquareNumbers((prev) => !prev)}
-              title="Toggle Standard 1-32 Checkers Square Numbers"
-              className={`p-1 rounded-lg border text-[10px] font-mono flex items-center gap-1 transition-colors cursor-pointer ${
-                showSquareNumbers
-                  ? 'bg-amber-950/70 border-amber-700/60 text-amber-300'
-                  : 'bg-stone-900 border-stone-800 text-stone-400'
-              }`}
-            >
-              <Hash className="w-3 h-3" />
-              <span className="hidden sm:inline">1-32</span>
-            </button>
-          </div>
-
-          {/* The Checkers Board */}
+        {/* B. The Checkers Board (Center Stage with Viewport Height Clamping) */}
+        <div className="flex items-center justify-center my-0.5">
           <CheckersBoard
             board={board}
             turn={turn}
@@ -656,133 +523,70 @@ export default function App() {
             theme={theme}
             onAttemptedInvalidMove={() => soundManager.playMandatoryJumpAlert()}
           />
-
-          {/* Tactical Hint Notification Banner */}
-          {hintExplanation && (
-            <div className="w-[min(50vh,88vw,440px)] md:w-[min(58vh,520px)] p-2 rounded-xl bg-gradient-to-r from-amber-950/80 to-stone-950/80 border border-amber-700/60 text-xs text-amber-200 flex items-center gap-2 animate-in fade-in shadow-md">
-              <Lightbulb className="w-4 h-4 text-amber-400 shrink-0" />
-              <span className="font-medium truncate">{hintExplanation}</span>
-            </div>
-          )}
         </div>
 
-        {/* RIGHT FLANK (Desktop) / BOTTOM CARD (Mobile): Player Dossier & Game Controls */}
-        <div className="w-[min(50vh,88vw,440px)] md:w-64 lg:w-72 shrink-0 flex flex-col gap-2">
-          
-          {/* Human Player Card */}
-          <div
-            className={`p-2.5 sm:p-3.5 rounded-2xl border transition-all duration-200 flex flex-col gap-2 ${
-              turn === 'red'
-                ? 'bg-gradient-to-b from-[#2e120f] to-[#1c0b09] border-rose-500/80 shadow-[0_4px_16px_rgba(244,63,94,0.15)] ring-1 ring-rose-400/30'
-                : 'bg-stone-950/60 border-stone-800/80 opacity-90'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                {/* Player Avatar */}
-                <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center border shadow-inner ${
-                    turn === 'red'
-                      ? 'bg-gradient-to-br from-rose-600 to-rose-900 border-rose-400 text-stone-100 ring-2 ring-rose-400/40'
-                      : 'bg-stone-900 border-stone-700 text-stone-400'
-                  }`}
-                >
-                  <User className="w-4 h-4 text-rose-200" />
-                </div>
-
-                <div className="flex flex-col leading-tight">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs sm:text-sm font-serif font-bold text-stone-100">
-                      You (Human)
-                    </span>
-                    {turn === 'red' && (
-                      <span className="text-[9px] font-mono text-emerald-400 font-bold animate-pulse px-1 rounded bg-emerald-950/60 border border-emerald-800/50">
-                        YOUR TURN
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-[10px] text-rose-300/80 font-mono">
-                    Red Draughts · Moves Upward
-                  </span>
-                </div>
-              </div>
-
-              {/* Red Piece Badge */}
-              <div className="w-5 h-5 rounded-full bg-rose-700 border border-rose-400 shadow-sm flex items-center justify-center">
-                <div className="w-2.5 h-2.5 rounded-full bg-rose-500 border border-rose-300" />
-              </div>
-            </div>
-
-            {/* Captured Black Pieces Tray (Pieces lost by AI) */}
-            <div className="flex items-center justify-between text-[11px] pt-1 border-t border-stone-800/60">
-              <span className="text-[10px] font-medium text-stone-400">Captured Black:</span>
-              {renderCapturedRack(capturedStats.blackLostTotal, false)}
-            </div>
-          </div>
-
-          {/* Desktop Only: Dedicated Control Panel */}
-          <div className="hidden md:flex flex-col gap-2 p-3 rounded-2xl bg-stone-950/60 border border-stone-800/80">
-            <span className="text-[10px] font-bold font-mono text-amber-300/90 uppercase tracking-wider pb-1 border-b border-stone-800">
-              Match Controls
-            </span>
-
-            {/* Primary Action Button (New Match) */}
-            <button
-              onClick={handleNewGame}
-              className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-serif font-bold text-xs shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer border border-amber-300"
+        {/* C. Human Player Profile Card (Bottom: You) */}
+        <div
+          className={`w-[min(48vh,88vw,410px)] py-1.5 px-3 rounded-2xl border transition-all duration-200 flex items-center justify-between ${
+            turn === 'red'
+              ? 'bg-rose-950/30 border-rose-500/80 shadow-md ring-1 ring-rose-400/40'
+              : 'bg-stone-900/50 border-stone-800/80 opacity-80'
+          }`}
+        >
+          {/* Avatar & Title */}
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-8 h-8 rounded-xl flex items-center justify-center border shadow-inner ${
+                turn === 'red'
+                  ? 'bg-gradient-to-br from-rose-500 to-rose-700 border-rose-400 text-stone-100'
+                  : 'bg-stone-800 border-stone-700 text-stone-400'
+              }`}
             >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>New Match</span>
-            </button>
+              <User className="w-4 h-4" />
+            </div>
 
-            {/* Quick Action Buttons Grid */}
-            <div className="grid grid-cols-2 gap-1.5">
-              <button
-                onClick={handleUndo}
-                disabled={history.length < 2 || isAiThinking}
-                className="py-1.5 px-2 rounded-xl bg-stone-900 hover:bg-stone-800 disabled:opacity-40 border border-stone-800 text-xs text-stone-300 font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Undo2 className="w-3.5 h-3.5 text-stone-400" />
-                <span>Undo</span>
-              </button>
-
-              <button
-                onClick={handleGetHint}
-                disabled={isAiThinking || turn !== 'red'}
-                className="py-1.5 px-2 rounded-xl bg-stone-900 hover:bg-stone-800 disabled:opacity-40 border border-stone-800 text-xs text-amber-300 font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
-                <span>Hint</span>
-              </button>
-
-              <button
-                onClick={() => setIsSaveLoadOpen(true)}
-                className="py-1.5 px-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-800 text-xs text-stone-300 font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Save className="w-3.5 h-3.5 text-amber-400" />
-                <span>Save/Load</span>
-              </button>
-
-              <button
-                onClick={() => setIsTutorialOpen(true)}
-                className="py-1.5 px-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-800 text-xs text-stone-300 font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <GraduationCap className="w-3.5 h-3.5 text-amber-400" />
-                <span>Tutorial</span>
-              </button>
+            <div className="flex flex-col leading-tight">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-stone-100">You (Human)</span>
+                {turn === 'red' && (
+                  <span className="text-[9px] font-mono text-emerald-400 font-bold animate-pulse">
+                    YOUR TURN
+                  </span>
+                )}
+              </div>
+              <span className="text-[9px] text-stone-400 font-mono">
+                Red Checkers · Moves Upward
+              </span>
             </div>
           </div>
+
+          {/* Captured Pieces Meter */}
+          <div className="flex items-center gap-1 bg-stone-950/70 px-2 py-0.5 rounded-lg border border-stone-800 text-[10px]">
+            <div className="w-2 h-2 rounded-full bg-stone-300 border border-stone-100" />
+            <span className="font-mono font-bold text-stone-200">
+              {capturedStats.blackLostTotal}
+            </span>
+            <span className="text-[9px] text-stone-500">lost</span>
+          </div>
         </div>
+
+        {/* Hint Notification (if requested) */}
+        {hintExplanation && (
+          <div className="w-[min(48vh,88vw,410px)] p-1.5 rounded-xl bg-amber-950/50 border border-amber-800/60 text-[10px] text-amber-200 flex items-center gap-1.5 animate-in fade-in">
+            <Lightbulb className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="truncate">{hintExplanation}</span>
+          </div>
+        )}
 
       </main>
 
-      {/* 3. Fixed Mobile Bottom Game Controller Dock (Natural Thumb Zone) */}
-      <footer className="md:hidden shrink-0 h-16 bg-[#170f0a]/95 backdrop-blur-lg border-t border-[#3d2516] px-4 flex items-center justify-around max-w-md w-full mx-auto z-40">
+      {/* 3. Fixed Mobile Bottom Game Controller Dock (Thumb Natural Reach Zone) */}
+      <footer className="shrink-0 h-16 bg-stone-950/95 backdrop-blur-lg border-t border-stone-800/90 px-4 flex items-center justify-around max-w-md w-full mx-auto z-40">
         {/* Undo */}
         <button
           onClick={handleUndo}
           disabled={history.length < 2 || isAiThinking}
-          className="flex flex-col items-center justify-center min-w-[50px] min-h-[44px] text-stone-400 hover:text-amber-200 disabled:opacity-30 active:scale-95 transition-all cursor-pointer"
+          className="flex flex-col items-center justify-center min-w-[50px] min-h-[44px] text-stone-400 hover:text-stone-100 disabled:opacity-30 active:scale-95 transition-all cursor-pointer"
         >
           <Undo2 className="w-5 h-5" />
           <span className="text-[10px] font-medium mt-0.5">Undo</span>
@@ -792,7 +596,7 @@ export default function App() {
         <button
           onClick={handleGetHint}
           disabled={isAiThinking || turn !== 'red'}
-          className="flex flex-col items-center justify-center min-w-[50px] min-h-[44px] text-stone-400 hover:text-amber-300 disabled:opacity-30 active:scale-95 transition-all cursor-pointer"
+          className="flex flex-col items-center justify-center min-w-[50px] min-h-[44px] text-stone-400 hover:text-amber-400 disabled:opacity-30 active:scale-95 transition-all cursor-pointer"
         >
           <Lightbulb className="w-5 h-5 text-amber-400" />
           <span className="text-[10px] font-medium mt-0.5">Hint</span>
@@ -802,15 +606,15 @@ export default function App() {
         <button
           onClick={handleNewGame}
           title="Start New Match"
-          className="flex flex-col items-center justify-center w-11 h-11 rounded-2xl brass-corner text-stone-950 shadow-lg shadow-amber-950/50 active:scale-90 transition-transform cursor-pointer -mt-3 border-2 border-[#ffd700]"
+          className="flex flex-col items-center justify-center w-11 h-11 rounded-2xl bg-amber-400 text-stone-950 shadow-lg shadow-amber-400/25 active:scale-90 transition-transform cursor-pointer -mt-3 border-2 border-amber-300"
         >
-          <RefreshCw className="w-5 h-5 text-[#2b170c]" />
+          <RefreshCw className="w-5 h-5" />
         </button>
 
         {/* Save / Load Sheet */}
         <button
           onClick={() => setIsSaveLoadOpen(true)}
-          className="flex flex-col items-center justify-center min-w-[50px] min-h-[44px] text-stone-400 hover:text-amber-200 active:scale-95 transition-all cursor-pointer"
+          className="flex flex-col items-center justify-center min-w-[50px] min-h-[44px] text-stone-400 hover:text-stone-100 active:scale-95 transition-all cursor-pointer"
         >
           <Save className="w-5 h-5 text-amber-400/90" />
           <span className="text-[10px] font-medium mt-0.5">Save</span>
@@ -819,14 +623,14 @@ export default function App() {
         {/* Interactive Tutorial */}
         <button
           onClick={() => setIsTutorialOpen(true)}
-          className="flex flex-col items-center justify-center min-w-[50px] min-h-[44px] text-stone-400 hover:text-amber-300 active:scale-95 transition-all cursor-pointer"
+          className="flex flex-col items-center justify-center min-w-[50px] min-h-[44px] text-stone-400 hover:text-amber-400 active:scale-95 transition-all cursor-pointer"
         >
           <GraduationCap className="w-5 h-5 text-amber-400" />
           <span className="text-[10px] font-medium mt-0.5">Tutorial</span>
         </button>
       </footer>
 
-      {/* Modals & Dialogs */}
+      {/* Modals & Sheets */}
       <ThemeSelectorModal
         isOpen={isThemeOpen}
         onClose={() => setIsThemeOpen(false)}
