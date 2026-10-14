@@ -1,0 +1,6 @@
+{
+  "name": "NeuroCheckers — ANN Draughts Grandmaster",
+  "description": "A tournament-grade Checkers engine powered by an Artificial Neural Network (ANN) trained with deep positional heuristics, Alpha-Beta pruning, and live neural activation visualization to challenge expert human strategies.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
